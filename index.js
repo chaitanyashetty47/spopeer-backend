@@ -20,16 +20,26 @@ app.use(express.json());
 // Function to clean private key
 const cleanPrivateKey = (key) => {
   if (!key) return '';
-  // Remove any extra spaces and convert literal \n to actual newlines
-  return key.replace(/\\n/g, '\n').replace(/(-----(BEGIN|END) PRIVATE KEY-----)/g, '$1\n');
+  // Remove any extra spaces and normalize line endings
+  const normalized = key
+    .replace(/\\n/g, '\n')
+    .replace(/\s+/g, '\n')
+    .replace(/(-----(BEGIN|END) PRIVATE KEY-----)/g, '$1\n');
+  
+  // Ensure proper PEM format
+  if (!normalized.includes('-----BEGIN PRIVATE KEY-----')) {
+    return `-----BEGIN PRIVATE KEY-----\n${normalized}\n-----END PRIVATE KEY-----`;
+  }
+  
+  return normalized;
 };
 
 // Initialize Google Sheets Auth
 const auth = new google.auth.GoogleAuth({
   credentials: {
     client_email: process.env.GOOGLE_SHEETS_CLIENT_EMAIL,
-    // private_key: cleanPrivateKey(process.env.GOOGLE_SHEETS_PRIVATE_KEY)
-    private_key: process.env.GOOGLE_SHEETS_PRIVATE_KEY?.replace(/\\n/g, '\n')
+     private_key: cleanPrivateKey(process.env.GOOGLE_SHEETS_PRIVATE_KEY)
+
   },
   scopes: ['https://www.googleapis.com/auth/spreadsheets']
 });

@@ -19,39 +19,9 @@ app.use(express.json());
 
 // Function to clean private key
 const cleanPrivateKey = (key) => {
-  if (!key) {
-    console.error('Private key is empty or undefined');
-    return '';
-  }
-
-  try {
-    // First, check if the key is already properly formatted
-    if (key.includes('-----BEGIN PRIVATE KEY-----') && 
-        key.includes('-----END PRIVATE KEY-----') && 
-        key.includes('\n')) {
-      console.log('Key appears to be properly formatted already');
-      return key;
-    }
-
-    // Remove any existing line endings and spaces
-    let cleaned = key.replace(/\\n/g, '\n')
-                    .replace(/\s+/g, '\n')
-                    .trim();
-
-    // If the key doesn't have the proper PEM format, add it
-    if (!cleaned.includes('-----BEGIN PRIVATE KEY-----')) {
-      cleaned = `-----BEGIN PRIVATE KEY-----\n${cleaned}\n-----END PRIVATE KEY-----`;
-    }
-
-    // Log the first and last 20 characters of the cleaned key (for security)
-    console.log('Cleaned key starts with:', cleaned.substring(0, 20));
-    console.log('Cleaned key ends with:', cleaned.substring(cleaned.length - 20));
-    
-    return cleaned;
-  } catch (error) {
-    console.error('Error cleaning private key:', error);
-    throw error;
-  }
+  if (!key) return '';
+  // Remove any extra spaces and convert literal \n to actual newlines
+  return key.replace(/\\n/g, '\n').replace(/(-----(BEGIN|END) PRIVATE KEY-----)/g, '$1\n');
 };
 
 // Initialize Google Sheets Auth
@@ -63,36 +33,11 @@ const auth = new google.auth.GoogleAuth({
   scopes: ['https://www.googleapis.com/auth/spreadsheets']
 });
 
-// Add error handling for auth initialization
-let sheets;
-try {
-  sheets = google.sheets({ version: 'v4', auth });
-  console.log('Google Sheets client initialized successfully');
-} catch (error) {
-  console.error('Error initializing Google Sheets client:', error);
-  throw error;
-}
+const sheets = google.sheets({ version: 'v4', auth });
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
-});
-
-// Temporary debug endpoint (REMOVE IN PRODUCTION)
-app.get('/api/debug-auth', (req, res) => {
-  try {
-    const privateKey = process.env.GOOGLE_SHEETS_PRIVATE_KEY;
-    res.json({
-      keyLength: privateKey ? privateKey.length : 0,
-      hasBeginMarker: privateKey ? privateKey.includes('-----BEGIN PRIVATE KEY-----') : false,
-      hasEndMarker: privateKey ? privateKey.includes('-----END PRIVATE KEY-----') : false,
-      hasNewlines: privateKey ? privateKey.includes('\\n') : false,
-      nodeVersion: process.version,
-      nodeOptions: process.env.NODE_OPTIONS || 'not set'
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
 });
 
 // Waitlist endpoint

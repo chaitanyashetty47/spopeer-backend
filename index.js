@@ -6,11 +6,11 @@ const { google } = require('googleapis');
 const app = express();
 
 // Middleware
+
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://your-domain.vercel.app', 'https://your-domain.com'] 
-    : 'http://localhost:3000'
+  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : 'http://localhost:3000'
 }));
+
 app.use(express.json());
 
 // Function to clean private key

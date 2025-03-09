@@ -1,0 +1,10 @@
+{
+  "name": "spopeer-server",
+  "version": "1.0.0",
+  "engines": {
+    "node": "16.x"
+  },
+  "scripts": {
+    "vercel-build": "export NODE_OPTIONS='--openssl-legacy-provider' && npm run build"
+  }
+} 

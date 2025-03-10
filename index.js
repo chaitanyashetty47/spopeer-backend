@@ -8,7 +8,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: ["https://spopeer-eight.vercel.app","http://localhost:8080"],
+  origin: ["https://www.spopeer.com","http://www.spopeer.com","https://spopeer-landing.vercel.app"],
   methods: ["GET", "POST", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Custom-Header"],
   credentials: true

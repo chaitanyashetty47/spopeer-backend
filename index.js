@@ -126,6 +126,7 @@ const cleanPrivateKey = (key) => {
   return key.replace(/\\n/g, '\n').replace(/(-----(BEGIN|END) PRIVATE KEY-----)/g, '$1\n');
 };
 
+
 // Initialize Google Sheets Auth
 const auth = new google.auth.GoogleAuth({
   credentials: {

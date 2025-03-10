@@ -21,6 +21,13 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
+
+//count for number of waitlist entries
+app.get('/api/waitlist/count', async (req, res) => {
+  const count = await prisma.waitlist.count();
+  res.json({ count });
+});
+
 // Waitlist endpoint
 app.post('/api/waitlist', async (req, res) => {
   try {
